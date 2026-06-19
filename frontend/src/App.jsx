@@ -1,0 +1,430 @@
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { Activity, BookOpen, Clock, Database, Gauge, Sparkles, Star, Wand2 } from "lucide-react";
+import Shell, { Card, MetricCard } from "./components/Shell.jsx";
+import { ActionBar, defaultParams, genres, Select, Slider } from "./components/Controls.jsx";
+import { BarMetricChart, DonutChart, LineMetricChart, TrendChart } from "./components/Charts.jsx";
+import { api } from "./services/api.js";
+import { copyText, downloadPdf, downloadTxt, readingLabel } from "./utils/downloads.js";
+
+const modelOptions = [
+  { label: "Qwen2.5 0.5B Instruct (best quality)", value: "qwen2.5-0.5b-instruct" },
+  { label: "DistilGPT-2", value: "distilgpt2" },
+  { label: "GPT-2", value: "gpt2" }
+];
+
+function useAnalytics() {
+  const [analytics, setAnalytics] = useState(null);
+  const refresh = async () => {
+    try {
+      setAnalytics(await api.getAnalytics());
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  useEffect(() => { refresh(); }, []);
+  return { analytics, refresh };
+}
+
+function SettingsPanel({ params, setParams }) {
+  return (
+    <Card className="space-y-5">
+      <Select label="Genre" value={params.genre} onChange={(genre) => setParams({ ...params, genre })} options={genres} />
+      <Select label="Model" value={params.model} onChange={(model) => setParams({ ...params, model })} options={modelOptions} />
+      <Slider label="Temperature" value={params.temperature} min={0.1} max={1.8} step={0.05} onChange={(temperature) => setParams({ ...params, temperature })} />
+      <Slider label="Top-K" value={params.top_k} min={1} max={100} step={1} onChange={(top_k) => setParams({ ...params, top_k })} />
+      <Slider label="Top-P" value={params.top_p} min={0.1} max={1} step={0.01} onChange={(top_p) => setParams({ ...params, top_p })} />
+      <Slider label="Max Tokens" value={params.max_tokens} min={30} max={500} step={10} onChange={(max_tokens) => setParams({ ...params, max_tokens })} />
+    </Card>
+  );
+}
+
+function StoryResult({ result }) {
+  if (!result) return null;
+  const story = result.combined_story || result.generated_story;
+  return (
+    <Card className="space-y-5">
+      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-gold">Generated Output</p>
+          <h2 className="mt-2 text-2xl font-black">{result.title}</h2>
+          <p className="mt-2 text-sm text-slate-400">{result.summary}</p>
+        </div>
+        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm">
+          <strong>{result.model_used}</strong>
+          <p className="text-slate-400">{result.device} inference</p>
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-4">
+        <MetricCard label="Words" value={result.word_count} icon={BookOpen} />
+        <MetricCard label="Reading Time" value={readingLabel(result.reading_time)} icon={Clock} />
+        <MetricCard label="Generation Time" value={`${result.generation_time}s`} icon={Gauge} />
+        <MetricCard label="Memory" value={`${result.memory_usage || 0} MB`} icon={Activity} />
+      </div>
+      <article className="max-h-[520px] overflow-auto whitespace-pre-wrap rounded-3xl border border-white/10 bg-black/20 p-5 leading-8 text-slate-100">
+        {story}
+      </article>
+    </Card>
+  );
+}
+
+function Dashboard({ analytics }) {
+  const empty = !analytics;
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <MetricCard label="Total Stories" value={empty ? 0 : analytics.total_stories} icon={Database} />
+        <MetricCard label="Average Rating" value={empty ? "0.0" : analytics.average_rating} sub="Rated stories" icon={Star} />
+        <MetricCard label="Most Used Genre" value={empty ? "N/A" : analytics.most_used_genre} icon={Sparkles} />
+        <MetricCard label="Generations" value={empty ? 0 : analytics.generation_count} icon={Wand2} />
+      </div>
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card>
+          <h3 className="mb-4 text-lg font-black">Generation Trends</h3>
+          <TrendChart data={analytics?.generation_trends || []} />
+        </Card>
+        <Card>
+          <h3 className="mb-4 text-lg font-black">Genre Distribution</h3>
+          <DonutChart data={analytics?.genre_distribution || []} />
+        </Card>
+        <Card>
+          <h3 className="mb-4 text-lg font-black">Model Usage</h3>
+          <DonutChart data={analytics?.model_usage || []} />
+        </Card>
+        <Card>
+          <h3 className="mb-4 text-lg font-black">Performance Analytics</h3>
+          <LineMetricChart data={analytics?.performance || []} />
+        </Card>
+      </div>
+      <Card>
+        <h3 className="mb-4 text-lg font-black">Recent Stories</h3>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {(analytics?.recent_stories || []).map((story) => (
+            <div key={story.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p className="font-bold">{story.title}</p>
+              <p className="mt-2 line-clamp-3 text-sm text-slate-400">{story.generated_story}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function GeneratorPage({ onSaved }) {
+  const [params, setParams] = useState(defaultParams);
+  const [prompt, setPrompt] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const storyText = result?.combined_story || result?.generated_story || "";
+
+  const generate = async () => {
+    setLoading(true);
+    try {
+      const data = await api.generateStory({ prompt, ...params });
+      setResult(data);
+      toast.success("Story generated successfully");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const save = async () => {
+    await api.saveStory({ ...result, ...params });
+    toast.success("Story saved to library");
+    onSaved();
+  };
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
+      <div className="space-y-6">
+        <Card>
+          <textarea className="input min-h-56 resize-y" value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Enter a cinematic prompt with a character, setting, and conflict..." />
+        </Card>
+        <ActionBar
+          loading={loading}
+          onGenerate={generate}
+          onReset={() => { setPrompt(""); setResult(null); }}
+          onSave={result ? save : null}
+          onCopy={result ? () => copyText(storyText).then(() => toast.success("Copied")) : null}
+          onPdf={result ? () => downloadPdf(`${result.title}.pdf`, result.title, storyText) : null}
+          onTxt={result ? () => downloadTxt(`${result.title}.txt`, storyText) : null}
+        />
+        <StoryResult result={result} />
+      </div>
+      <SettingsPanel params={params} setParams={setParams} />
+    </div>
+  );
+}
+
+function CompletionPage({ onSaved }) {
+  const [params, setParams] = useState({ ...defaultParams, genre: "Mystery" });
+  const [unfinished, setUnfinished] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const complete = async () => {
+    setLoading(true);
+    try {
+      const data = await api.completeStory({ unfinished_story: unfinished, ...params });
+      setResult(data);
+      toast.success("Story completed");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
+      <div className="space-y-6">
+        <Card>
+          <textarea className="input min-h-56 resize-y" value={unfinished} onChange={(event) => setUnfinished(event.target.value)} placeholder="Paste an unfinished story here..." />
+        </Card>
+        <ActionBar
+          loading={loading}
+          generateLabel="Complete Story"
+          onGenerate={complete}
+          onReset={() => { setUnfinished(""); setResult(null); }}
+          onSave={result ? async () => { await api.saveStory({ ...result, ...params }); toast.success("Completed story saved"); onSaved(); } : null}
+          onCopy={result ? () => copyText(result.combined_story).then(() => toast.success("Copied")) : null}
+          onPdf={result ? () => downloadPdf(`${result.title}.pdf`, result.title, result.combined_story) : null}
+          onTxt={result ? () => downloadTxt(`${result.title}.txt`, result.combined_story) : null}
+        />
+        {result && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card><h3 className="mb-3 font-black">Original Text</h3><p className="whitespace-pre-wrap leading-7 text-slate-300">{result.original_text}</p></Card>
+            <Card><h3 className="mb-3 font-black">Generated Continuation</h3><p className="whitespace-pre-wrap leading-7 text-slate-300">{result.continuation}</p></Card>
+          </div>
+        )}
+        <StoryResult result={result} />
+      </div>
+      <SettingsPanel params={params} setParams={setParams} />
+    </div>
+  );
+}
+
+function ComparisonPage() {
+  const [params, setParams] = useState({ ...defaultParams, model: "gpt2" });
+  const [prompt, setPrompt] = useState("");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const chartData = useMemo(() => (data?.results || []).map((item) => ({ model: item.model_used, ...item.metrics })), [data]);
+
+  const compare = async () => {
+    setLoading(true);
+    try {
+      setData(await api.compareModels({ prompt, ...params }));
+      toast.success("Model comparison completed");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card><textarea className="input min-h-40" value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Enter one prompt to compare GPT-2 and DistilGPT-2..." /></Card>
+      <div className="grid gap-4 md:grid-cols-4">
+        <Select label="Genre" value={params.genre} onChange={(genre) => setParams({ ...params, genre })} options={genres} />
+        <Slider label="Temperature" value={params.temperature} min={0.1} max={1.8} step={0.05} onChange={(temperature) => setParams({ ...params, temperature })} />
+        <Slider label="Top-P" value={params.top_p} min={0.1} max={1} step={0.01} onChange={(top_p) => setParams({ ...params, top_p })} />
+        <Slider label="Max Tokens" value={params.max_tokens} min={30} max={500} step={10} onChange={(max_tokens) => setParams({ ...params, max_tokens })} />
+      </div>
+      <button disabled={loading} onClick={compare} className="btn-primary">{loading ? "Comparing..." : "Compare GPT-2 vs DistilGPT-2"}</button>
+      {data && (
+        <>
+          <div className="grid gap-6 xl:grid-cols-2">
+            {data.results.map((result) => <StoryResult key={result.model_used} result={result} />)}
+          </div>
+          <Card>
+            <h3 className="mb-4 text-lg font-black">Comparison Metrics</h3>
+            <BarMetricChart data={chartData} xKey="model" bars={[
+              { key: "coherence", name: "Coherence" },
+              { key: "creativity", name: "Creativity" },
+              { key: "context_retention", name: "Context Retention" },
+              { key: "response_speed", name: "Speed" }
+            ]} />
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+
+function StarRating({ value, onChange }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button key={star} onClick={() => onChange(star)} className={star <= value ? "text-gold" : "text-slate-500"}>
+          <Star size={18} fill="currentColor" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function LibraryPage({ onSaved }) {
+  const [stories, setStories] = useState([]);
+  const [filters, setFilters] = useState({ search: "", genre: "", min_rating: "" });
+  const [editing, setEditing] = useState(null);
+
+  const load = async () => setStories(await api.getStories(filters));
+  useEffect(() => { load().catch((error) => toast.error(error.message)); }, []);
+
+  const deleteStory = async (id) => {
+    await api.deleteStory(id);
+    toast.success("Story deleted");
+    load();
+    onSaved();
+  };
+
+  const rate = async (id, rating) => {
+    await api.rateStory(id, rating);
+    toast.success("Rating updated");
+    load();
+    onSaved();
+  };
+
+  const update = async () => {
+    await api.updateStory(editing.id, editing);
+    toast.success("Story updated");
+    setEditing(null);
+    load();
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <div className="grid gap-3 md:grid-cols-5">
+          <input className="input md:col-span-2" placeholder="Search stories..." value={filters.search} onChange={(event) => setFilters({ ...filters, search: event.target.value })} />
+          <Select label="" value={filters.genre} onChange={(genre) => setFilters({ ...filters, genre })} options={[{ label: "All Genres", value: "" }, ...genres]} />
+          <Select label="" value={filters.min_rating} onChange={(min_rating) => setFilters({ ...filters, min_rating })} options={[{ label: "Any Rating", value: "" }, 1, 2, 3, 4, 5].map((x) => typeof x === "object" ? x : { label: `${x}+ Stars`, value: x })} />
+          <button className="btn-primary" onClick={load}>Apply Filters</button>
+        </div>
+      </Card>
+      <div className="grid gap-5">
+        {stories.map((story) => (
+          <Card key={story.id}>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-300">{story.genre} | {story.model_used}</p>
+                <h3 className="mt-2 text-xl font-black">{story.title}</h3>
+                <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-400">{story.generated_story}</p>
+                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-400">
+                  <span>{story.word_count} words</span><span>{readingLabel(story.reading_time)}</span><span>{story.generation_time}s</span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 lg:justify-end">
+                <StarRating value={story.rating} onChange={(rating) => rate(story.id, rating)} />
+                <button className="btn-secondary" onClick={() => setEditing(story)}>Edit</button>
+                <button className="btn-secondary" onClick={() => copyText(story.generated_story).then(() => toast.success("Copied"))}>Copy</button>
+                <button className="btn-secondary" onClick={() => downloadTxt(`${story.title}.txt`, story.generated_story)}>TXT</button>
+                <button className="btn-secondary" onClick={() => downloadPdf(`${story.title}.pdf`, story.title, story.generated_story)}>PDF</button>
+                <button className="btn-secondary" onClick={() => deleteStory(story.id)}>Delete</button>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      {editing && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+          <Card className="w-full max-w-3xl space-y-4">
+            <input className="input" value={editing.title} onChange={(event) => setEditing({ ...editing, title: event.target.value })} />
+            <textarea className="input min-h-72" value={editing.generated_story} onChange={(event) => setEditing({ ...editing, generated_story: event.target.value })} />
+            <div className="flex gap-3">
+              <button className="btn-primary" onClick={update}>Save Changes</button>
+              <button className="btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AnalyticsPage({ analytics }) {
+  return (
+    <div className="grid gap-6 xl:grid-cols-2">
+      <Card><h3 className="mb-4 text-lg font-black">Stories Per Day</h3><TrendChart data={analytics?.generation_trends || []} /></Card>
+      <Card><h3 className="mb-4 text-lg font-black">Model Usage</h3><DonutChart data={analytics?.model_usage || []} /></Card>
+      <Card><h3 className="mb-4 text-lg font-black">Genre Popularity</h3><DonutChart data={analytics?.genre_distribution || []} /></Card>
+      <Card><h3 className="mb-4 text-lg font-black">Generation Speed Comparisons</h3><LineMetricChart data={analytics?.performance || []} /></Card>
+      <Card className="xl:col-span-2">
+        <h3 className="mb-4 text-lg font-black">Rating Distribution</h3>
+        <BarMetricChart data={analytics?.rating_distribution || []} xKey="rating" bars={[{ key: "count", name: "Stories" }]} />
+      </Card>
+    </div>
+  );
+}
+
+function RatingsPage({ analytics }) {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <MetricCard label="Average Rating" value={analytics?.average_rating || 0} icon={Star} />
+        <MetricCard label="Rated Stories" value={(analytics?.top_rated || []).length} icon={BookOpen} />
+        <MetricCard label="Total Library" value={analytics?.total_stories || 0} icon={Database} />
+      </div>
+      <Card><h3 className="mb-4 text-lg font-black">Rating Distribution</h3><BarMetricChart data={analytics?.rating_distribution || []} xKey="rating" bars={[{ key: "count", name: "Stories" }]} /></Card>
+      <Card>
+        <h3 className="mb-4 text-lg font-black">Top Rated Stories</h3>
+        <div className="grid gap-3 md:grid-cols-2">
+          {(analytics?.top_rated || []).map((story) => (
+            <div key={story.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="flex justify-between gap-3"><strong>{story.title}</strong><span className="text-gold">{story.rating} stars</span></div>
+              <p className="mt-2 line-clamp-3 text-sm text-slate-400">{story.generated_story}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function SettingsPage({ theme, setTheme }) {
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <Card>
+        <h3 className="text-xl font-black">Application Settings</h3>
+        <p className="mt-2 text-sm text-slate-400">Control presentation and local development options.</p>
+        <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div><p className="font-bold">Theme</p><p className="text-sm text-slate-400">Toggle dark and light UI modes.</p></div>
+          <button className="btn-primary" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? "Light" : "Dark"}</button>
+        </div>
+      </Card>
+      <Card>
+        <h3 className="text-xl font-black">Model Notes</h3>
+        <p className="mt-3 leading-7 text-slate-300">Qwen2.5 0.5B Instruct provides the strongest prompt adherence. GPT-2 is a smaller baseline, while DistilGPT-2 is faster and lighter. The first use of a model downloads its files into the backend model cache.</p>
+      </Card>
+    </div>
+  );
+}
+
+export default function App() {
+  const [page, setPage] = useState("Dashboard");
+  const [theme, setTheme] = useState(localStorage.getItem("storycraft-theme") || "dark");
+  const { analytics, refresh } = useAnalytics();
+  useEffect(() => { localStorage.setItem("storycraft-theme", theme); }, [theme]);
+
+  const pages = {
+    Dashboard: <Dashboard analytics={analytics} />,
+    "Story Generator": <GeneratorPage onSaved={refresh} />,
+    "Story Completion": <CompletionPage onSaved={refresh} />,
+    "Model Comparison": <ComparisonPage />,
+    "Story Library": <LibraryPage onSaved={refresh} />,
+    Analytics: <AnalyticsPage analytics={analytics} />,
+    Ratings: <RatingsPage analytics={analytics} />,
+    Settings: <SettingsPage theme={theme} setTheme={setTheme} />
+  };
+
+  return (
+    <Shell page={page} setPage={setPage} theme={theme} setTheme={setTheme}>
+      {pages[page]}
+    </Shell>
+  );
+}
