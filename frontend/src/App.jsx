@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Activity, BookOpen, Clock, Database, Gauge, Sparkles, Star, Wand2 } from "lucide-react";
+import { Activity, BookOpen, Clock, Database, Gauge, Sparkles, Star, Wand2, Volume2, VolumeX } from "lucide-react";
 import Shell, { Card, MetricCard } from "./components/Shell.jsx";
 import { ActionBar, defaultParams, genres, Select, Slider } from "./components/Controls.jsx";
 import { BarMetricChart, DonutChart, LineMetricChart, TrendChart } from "./components/Charts.jsx";
@@ -40,19 +40,44 @@ function SettingsPanel({ params, setParams }) {
 }
 
 function StoryResult({ result }) {
+  const [isReciting, setIsReciting] = useState(false);
+
+  useEffect(() => {
+    return () => window.speechSynthesis.cancel();
+  }, []);
+
+  const toggleRecite = () => {
+    if (isReciting) {
+      window.speechSynthesis.cancel();
+      setIsReciting(false);
+    } else {
+      const text = result?.combined_story || result?.generated_story || "";
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onend = () => setIsReciting(false);
+      window.speechSynthesis.speak(utterance);
+      setIsReciting(true);
+    }
+  };
+
   if (!result) return null;
   const story = result.combined_story || result.generated_story;
   return (
     <Card className="space-y-5">
-      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-gold">Generated Output</p>
           <h2 className="mt-2 text-2xl font-black">{result.title}</h2>
           <p className="mt-2 text-sm text-slate-400">{result.summary}</p>
         </div>
-        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm">
-          <strong>{result.model_used}</strong>
-          <p className="text-slate-400">{result.device} inference</p>
+        <div className="flex items-center gap-3">
+          <button onClick={toggleRecite} className="btn-secondary h-auto py-3 px-4 text-sm font-bold">
+            {isReciting ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            {isReciting ? "Stop Reciting" : "Read Aloud"}
+          </button>
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm">
+            <strong>{result.model_used}</strong>
+            <p className="text-slate-400">{result.device} inference</p>
+          </div>
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-4">
@@ -124,6 +149,12 @@ function GeneratorPage({ onSaved }) {
       const data = await api.generateStory({ prompt, ...params });
       setResult(data);
       toast.success("Story generated successfully");
+      try {
+        await api.saveStory({ ...data, ...params });
+        onSaved();
+      } catch (err) {
+        console.error("Auto-save failed", err);
+      }
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -132,9 +163,13 @@ function GeneratorPage({ onSaved }) {
   };
 
   const save = async () => {
-    await api.saveStory({ ...result, ...params });
-    toast.success("Story saved to library");
-    onSaved();
+    try {
+      await api.saveStory({ ...result, ...params });
+      toast.success("Story saved to library");
+      onSaved();
+    } catch (error) {
+      toast.error("Failed to save: " + error.message);
+    }
   };
 
   return (
@@ -171,6 +206,12 @@ function CompletionPage({ onSaved }) {
       const data = await api.completeStory({ unfinished_story: unfinished, ...params });
       setResult(data);
       toast.success("Story completed");
+      try {
+        await api.saveStory({ ...data, ...params });
+        onSaved();
+      } catch (err) {
+        console.error("Auto-save failed", err);
+      }
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -189,7 +230,7 @@ function CompletionPage({ onSaved }) {
           generateLabel="Complete Story"
           onGenerate={complete}
           onReset={() => { setUnfinished(""); setResult(null); }}
-          onSave={result ? async () => { await api.saveStory({ ...result, ...params }); toast.success("Completed story saved"); onSaved(); } : null}
+          onSave={result ? async () => { try { await api.saveStory({ ...result, ...params }); toast.success("Completed story saved"); onSaved(); } catch (err) { toast.error("Failed to save: " + err.message); } } : null}
           onCopy={result ? () => copyText(result.combined_story).then(() => toast.success("Copied")) : null}
           onPdf={result ? () => downloadPdf(`${result.title}.pdf`, result.title, result.combined_story) : null}
           onTxt={result ? () => downloadTxt(`${result.title}.txt`, result.combined_story) : null}
