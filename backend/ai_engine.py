@@ -98,7 +98,7 @@ class StoryCraftEngine:
         return any(phrases.count(phrase) >= threshold for phrase in set(phrases))
 
     @classmethod
-    def _candidate_score(cls, prompt: str, candidate: str) -> float:
+    def _candidate_score(cls, prompt: str, candidate: str, language: str = "English") -> float:
         candidate_words = words(candidate)
         if len(candidate_words) < 8:
             return -1.0
@@ -106,8 +106,12 @@ class StoryCraftEngine:
         prompt_terms = {term for term in words(prompt) if term not in stop_words}
         candidate_terms = set(candidate_words)
         overlap = len(prompt_terms & candidate_terms) / max(len(prompt_terms), 1)
-        ending_bonus = 0.08 if candidate.rstrip().endswith((".", "!", "?", "\"")) else 0.0
+        ending_bonus = 0.08 if candidate.rstrip().endswith((".", "!", "?", "\"", "।", "”")) else 0.0
         length_score = min(len(candidate_words) / 120, 1.0) * 0.12
+        
+        if language != "English":
+            return round(length_score + ending_bonus + lexical_diversity(candidate) * 0.3, 4)
+            
         loop_penalty = 0.4 if cls._has_repetitive_loop(candidate) else 0.0
         return round(
             overlap * 0.55
@@ -137,26 +141,28 @@ class StoryCraftEngine:
         language = params.get("language", "English")
         full_prompt = self._build_model_prompt(generator, prompt, params["genre"], mode, model_key, language)
         fitted_prompt = self._fit_prompt_to_context(generator, full_prompt, params["max_tokens"])
-        outputs = generator(
-            fitted_prompt,
-            max_new_tokens=params["max_tokens"],
-            temperature=params["temperature"],
-            top_k=params["top_k"],
-            top_p=params["top_p"],
-            do_sample=True,
-            repetition_penalty=1.12,
-            no_repeat_ngram_size=3,
-            pad_token_id=generator.tokenizer.eos_token_id,
-            return_full_text=False,
-            num_return_sequences=3,
-        )
+        gen_kwargs = {
+            "max_new_tokens": params["max_tokens"],
+            "temperature": params["temperature"],
+            "top_k": params["top_k"],
+            "top_p": params["top_p"],
+            "do_sample": True,
+            "repetition_penalty": 1.15,
+            "pad_token_id": generator.tokenizer.eos_token_id,
+            "return_full_text": False,
+            "num_return_sequences": 3,
+        }
+        if language == "English":
+            gen_kwargs["no_repeat_ngram_size"] = 3
+            
+        outputs = generator(fitted_prompt, **gen_kwargs)
         generation_time = time.perf_counter() - started
         after = process.memory_info().rss / (1024 * 1024)
         candidates = [
             clean_text(self._trim_repetitive_tail(item["generated_text"]))
             for item in outputs
         ]
-        generated = max(candidates, key=lambda candidate: self._candidate_score(prompt, candidate))
+        generated = max(candidates, key=lambda candidate: self._candidate_score(prompt, candidate, language))
         if not generated:
             generated = "The story continued with a quiet sense of mystery, inviting the reader deeper into the scene."
 
