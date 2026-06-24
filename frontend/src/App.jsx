@@ -188,9 +188,9 @@ function InteractiveBuilder({ prompt, setPrompt, onGenerate }) {
     setLoading(true);
     try {
       const res = await api.chatRefine({ messages: newMsgs });
-      if (res.success) {
-        setMessages([...newMsgs, { role: "assistant", content: res.data.reply }]);
-        setPrompt(newMsgs.filter(m => m.role === "user").map(m => m.content).join(" "));
+      if (res.reply) {
+        setMessages([...newMsgs, { role: "assistant", content: res.reply }]);
+        setPrompt(newMsgs.filter(m => m.role === "user").map(m => m.content).join("\n\n"));
       }
     } catch (e) {
       toast.error("Chat failed");
