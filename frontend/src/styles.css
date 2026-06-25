@@ -14,14 +14,14 @@ body {
 
 .dark-theme {
   background:
-    radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.25), transparent 45%),
-    radial-gradient(circle at 90% 90%, rgba(246, 196, 83, 0.15), transparent 40%),
-    linear-gradient(135deg, #030a08 0%, #0a0f1d 55%, #05130d 100%);
+    radial-gradient(circle at 10% 10%, rgba(239, 68, 68, 0.20), transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(246, 196, 83, 0.10), transparent 40%),
+    linear-gradient(135deg, #1a0505 0%, #0d0a0f 55%, #130505 100%);
   color: #f8fafc;
 }
 
 .light-theme {
-  background: linear-gradient(135deg, #f6fff9 0%, #eef8f1 48%, #fff8e2 100%);
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe4e6 48%, #fff1f2 100%);
   color: #0f172a;
 }
 
@@ -34,8 +34,8 @@ body {
 
 .light-theme .glass {
   background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(0, 0, 0, 0.05);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.08);
+  border-color: rgba(239, 68, 68, 0.1);
+  box-shadow: 0 24px 60px rgba(239, 68, 68, 0.08);
 }
 
 .btn-primary {
@@ -47,7 +47,7 @@ body {
 }
 
 .light-theme .btn-secondary {
-  @apply text-slate-900;
+  @apply bg-white border-red-500/20 text-red-600 hover:bg-red-50;
 }
 
 .input {
@@ -55,9 +55,9 @@ body {
 }
 
 .light-theme .input {
-  @apply border-slate-200 bg-white text-slate-900 placeholder:text-red-500;
+  @apply border-red-200 bg-white text-slate-900 placeholder:text-red-300 focus:border-red-500 focus:ring-red-500/20;
 }
 
 .slider {
-  accent-color: #10b981;
+  accent-color: #ef4444;
 }
