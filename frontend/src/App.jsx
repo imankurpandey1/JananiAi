@@ -33,11 +33,7 @@ function SettingsPanel({ params, setParams }) {
       <Select label="Language" value={params.language} onChange={(language) => setParams({ ...params, language })} options={languages} />
       <Select label="Genre" value={params.genre} onChange={(genre) => setParams({ ...params, genre })} options={genres} />
       <Select label="Model" value={params.model} onChange={(model) => setParams({ ...params, model })} options={modelOptions} />
-      <Slider label="Max Tokens" value={params.max_tokens} min={30} max={500} step={10} onChange={(max_tokens) => setParams({ ...params, max_tokens })} />
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-bold uppercase tracking-widest text-slate-400">Author Name</label>
-        <input type="text" value={params.author_name} onChange={(e) => setParams({ ...params, author_name: e.target.value })} className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-200 outline-none focus:border-emerald-500/50" />
-      </div>
+      <Slider label="Max Tokens" value={params.max_tokens} min={30} max={2000} step={10} onChange={(max_tokens) => setParams({ ...params, max_tokens })} />
       <Select label="Visibility" value={params.visibility} onChange={(visibility) => setParams({ ...params, visibility })} options={["private", "public"]} />
     </Card>
   );
@@ -505,7 +501,11 @@ export default function App() {
 
   return (
     <Shell page={page} setPage={setPage} theme={theme} setTheme={setTheme}>
-      {pages[page]}
+      {Object.entries(pages).map(([name, component]) => (
+        <div key={name} className={page === name ? "block" : "hidden"}>
+          {component}
+        </div>
+      ))}
     </Shell>
   );
 }

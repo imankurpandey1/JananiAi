@@ -92,6 +92,19 @@ class StoryCraftEngine:
         return " ".join(cleaned).strip()
 
     @staticmethod
+    def _ensure_complete_sentence(text: str) -> str:
+        text = text.strip()
+        if not text:
+            return text
+        if text[-1] in ('.', '!', '?', '"', '”', '’'):
+            return text
+        
+        last_punct = max(text.rfind('.'), text.rfind('!'), text.rfind('?'))
+        if last_punct != -1:
+            return text[:last_punct+1]
+        return text + "..."
+
+    @staticmethod
     def _has_repetitive_loop(text: str, phrase_size: int = 3, threshold: int = 3) -> bool:
         tokens = words(text)
         phrases = [" ".join(tokens[index : index + phrase_size]) for index in range(len(tokens) - phrase_size + 1)]
@@ -159,7 +172,7 @@ class StoryCraftEngine:
         generation_time = time.perf_counter() - started
         after = process.memory_info().rss / (1024 * 1024)
         candidates = [
-            clean_text(self._trim_repetitive_tail(item["generated_text"]))
+            self._ensure_complete_sentence(clean_text(self._trim_repetitive_tail(item["generated_text"])))
             for item in outputs
         ]
         generated = max(candidates, key=lambda candidate: self._candidate_score(prompt, candidate, language))

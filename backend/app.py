@@ -126,7 +126,7 @@ def create_app() -> Flask:
             temperature = 0.85
             top_k = 50
             top_p = 0.92
-            max_tokens = int(payload.get("max_tokens", 180))
+            max_tokens = int(payload.get("max_tokens", 1000))
             language = payload.get("language", "English")
         except (TypeError, ValueError):
             return error_response("Story metadata contains invalid numeric values.")

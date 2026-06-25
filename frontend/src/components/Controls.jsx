@@ -7,9 +7,8 @@ export const defaultParams = {
   language: "English",
   genre: "Fantasy",
   model: "qwen2.5-0.5b-instruct",
-  max_tokens: 180,
-  visibility: "private",
-  author_name: "Anonymous"
+  max_tokens: 1000,
+  visibility: "private"
 };
 
 export function Select({ label, value, onChange, options }) {
