@@ -35,9 +35,8 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
         <main className="w-full lg:pl-72">
           <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/45 px-4 py-4 backdrop-blur-xl sm:px-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-red-500">Intelligent Story Generation</p>
-                <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-red-500">JananiAI</h1>
+              <div className="flex items-center">
+                <img src="/logo.png" alt="JananiAI Logo" className="h-10 sm:h-12 w-auto object-contain" />
               </div>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:hidden">
                 {navItems.map(([label]) => (
