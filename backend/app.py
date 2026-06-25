@@ -76,8 +76,12 @@ def create_app() -> Flask:
         password = payload.get("password", "")
         name = payload.get("name", "").strip()
         
-        if not email or not username or not password or not name:
-            return error_response("Email, username, password, and name are required.")
+        if not email or not password or not name:
+            return error_response("Email, password, and name are required.")
+            
+        if not username:
+            import random
+            username = email.split("@")[0] + str(random.randint(1000, 9999))
             
         password_hash = generate_password_hash(password)
         try:
