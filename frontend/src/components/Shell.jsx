@@ -19,7 +19,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
               <Gauge size={24} />
             </div>
             <div>
-              <p className="text-lg font-black tracking-tight">JananiAI</p>
+              <p className="text-lg font-black tracking-tight text-red-500">JananiAI</p>
               <p className="text-xs text-emerald-200">Generative NLP Studio</p>
             </div>
           </div>
@@ -43,7 +43,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.35em] text-red-500">Intelligent Story Generation</p>
-                <h1 className="text-2xl font-black tracking-tight sm:text-3xl">JananiAI</h1>
+                <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-red-500">JananiAI</h1>
               </div>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:hidden">
                 {navItems.map(([label]) => (
