@@ -14,14 +14,8 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
     <div className={`min-h-screen ${theme === "dark" ? "dark-theme" : "light-theme"}`}>
       <div className="flex min-h-screen">
         <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/10 bg-slate-950/70 p-5 backdrop-blur-xl lg:block">
-          <div className="mb-8 flex items-center gap-3">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-red-500 text-slate-950 shadow-glow">
-              <Gauge size={24} />
-            </div>
-            <div>
-              <p className="text-lg font-black tracking-tight text-red-500">JananiAI</p>
-              <p className="text-xs text-red-500">Generative NLP Studio</p>
-            </div>
+          <div className="mb-8 flex items-center px-2">
+            <img src="/logo.png" alt="JananiAI Logo" className="h-14 w-auto object-contain" />
           </div>
           <nav className="space-y-2">
             {navItems.map(([label, Icon]) => (
