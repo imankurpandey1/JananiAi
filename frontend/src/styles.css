@@ -43,7 +43,7 @@ body {
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/25 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition-all hover:-translate-y-1 hover:border-emerald-300/80 hover:bg-emerald-400/20 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/25 bg-white/5 px-4 py-2.5 text-sm font-semibold text-red-500 transition-all hover:-translate-y-1 hover:border-emerald-300/80 hover:bg-emerald-400/20 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95;
 }
 
 .light-theme .btn-secondary {

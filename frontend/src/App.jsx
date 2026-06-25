@@ -102,8 +102,8 @@ function StoryResult({ result }) {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <select disabled={translating} onChange={handleTranslate} value="" className="btn-secondary h-auto py-3 px-4 text-sm font-bold appearance-none outline-none focus:ring-2 focus:ring-emerald-400/50">
-            <option value="" disabled className="bg-slate-900 text-white">Translate...</option>
-            {languages.map((l) => <option key={l} value={l} className="bg-slate-900 text-white">{l}</option>)}
+            <option value="" disabled className="bg-slate-900 text-red-500">Translate...</option>
+            {languages.map((l) => <option key={l} value={l} className="bg-slate-900 text-red-500">{l}</option>)}
           </select>
           <button onClick={toggleRecite} className={`btn-secondary h-auto py-3 px-4 text-sm font-bold ${isReciting ? "animate-pulse border-emerald-400 bg-emerald-400/20 shadow-[0_0_20px_rgba(16,185,129,0.5)]" : ""}`}>
             {isReciting ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -222,7 +222,7 @@ function InteractiveBuilder({ prompt, setPrompt, onGenerate }) {
     <Card className="flex flex-col gap-4 h-[400px]">
       <div className="flex-1 overflow-y-auto space-y-4 pr-2 flex flex-col">
         {messages.map((m, i) => (
-          <div key={i} className={`p-3 rounded-xl max-w-[85%] ${m.role === 'assistant' ? 'bg-emerald-400/10 text-emerald-100 self-start' : 'bg-white/10 text-white self-end'}`}>
+          <div key={i} className={`p-3 rounded-xl max-w-[85%] ${m.role === 'assistant' ? 'bg-emerald-400/10 text-emerald-100 self-start' : 'bg-white/10 text-red-500 self-end'}`}>
             <p className="text-sm">{m.content}</p>
           </div>
         ))}
@@ -278,8 +278,8 @@ function GeneratorPage({ onSaved }) {
     <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
       <div className="space-y-6">
         <div className="flex justify-end gap-4 mb-2">
-          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'static' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-white'}`} onClick={() => setMode("static")}>Quick Prompt</button>
-          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'brainstorm' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-white'}`} onClick={() => setMode("brainstorm")}>Interactive Brainstorm</button>
+          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'static' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-red-500'}`} onClick={() => setMode("static")}>Quick Prompt</button>
+          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'brainstorm' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-red-500'}`} onClick={() => setMode("brainstorm")}>Interactive Brainstorm</button>
         </div>
         {mode === "static" ? (
           <Card>
@@ -410,8 +410,8 @@ function LibraryPage({ onSaved }) {
   return (
     <div className="space-y-6">
       <div className="flex gap-4 border-b border-white/10 pb-2">
-        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'private' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-white'}`} onClick={() => setTab("private")}>My Private Library</button>
-        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'public' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-white'}`} onClick={() => setTab("public")}>Public Discover Feed</button>
+        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'private' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-red-500'}`} onClick={() => setTab("private")}>My Private Library</button>
+        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'public' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-red-500'}`} onClick={() => setTab("public")}>Public Discover Feed</button>
       </div>
       <Card>
         <div className="grid gap-3 md:grid-cols-5">

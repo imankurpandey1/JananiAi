@@ -29,7 +29,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
                 key={label}
                 onClick={() => setPage(label)}
                 className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                  page === label ? "bg-emerald-400 text-slate-950 shadow-glow" : "text-slate-300 hover:bg-white/10 hover:text-white"
+                  page === label ? "bg-emerald-400 text-slate-950 shadow-glow" : "text-red-500 hover:bg-red-500/10 hover:text-red-400"
                 }`}
               >
                 <Icon size={18} />
