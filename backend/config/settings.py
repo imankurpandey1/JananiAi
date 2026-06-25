@@ -17,6 +17,7 @@ class Settings:
     MAX_PROMPT_CHARS = int(os.environ.get("STORYCRAFT_MAX_PROMPT_CHARS", "5000"))
     FRONTEND_ORIGIN = os.environ.get("STORYCRAFT_FRONTEND_ORIGIN", "*")
     CORS_ORIGINS = "*"
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "618003048467-libua714ra4mdbe0tk2qqb915gorovoh.apps.googleusercontent.com")
 
     GENRES = [
         "Fantasy",

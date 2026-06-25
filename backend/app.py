@@ -14,6 +14,8 @@ import jwt
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 
 def error_response(message: str, status: int = 400):
@@ -116,6 +118,46 @@ def create_app() -> Flask:
             return jsonify({"success": True, "data": {"token": token, "user": {"id": user["id"], "email": user["email"], "name": user["name"]}}}), 200
             
         return error_response("Invalid email or password.", 401)
+
+    @app.post("/auth/google")
+    def google_login():
+        payload = request.get_json(silent=True) or {}
+        token = payload.get("credential")
+        if not token:
+            return error_response("Missing credential.")
+            
+        try:
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), app.config["GOOGLE_CLIENT_ID"])
+            email = idinfo.get("email")
+            name = idinfo.get("name", "Google User")
+            
+            if not email:
+                return error_response("Google token did not contain an email.", 400)
+                
+            with get_connection() as conn:
+                user = row_to_dict(conn.execute("SELECT id, email, name, password_hash FROM users WHERE email = ?", (email,)).fetchone())
+                
+                if not user:
+                    # Create the user if they don't exist
+                    # We generate a random password hash since they use Google login
+                    password_hash = generate_password_hash("google-auth-no-password")
+                    cursor = conn.execute(
+                        "INSERT INTO users (email, password_hash, name, created_at) VALUES (?, ?, ?, ?)",
+                        (email, password_hash, name, utc_now_iso())
+                    )
+                    conn.commit()
+                    user_id = cursor.lastrowid
+                else:
+                    user_id = user["id"]
+                    
+            jwt_token = jwt.encode(
+                {"user_id": user_id, "exp": datetime.utcnow() + timedelta(days=7)},
+                app.config["SECRET_KEY"],
+                algorithm="HS256"
+            )
+            return jsonify({"success": True, "data": {"token": jwt_token, "user": {"id": user_id, "email": email, "name": name}}}), 200
+        except ValueError as e:
+            return error_response(f"Invalid Google token: {str(e)}", 401)
 
     @app.get("/auth/profile")
     @token_required
