@@ -39,11 +39,11 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-glow transition-all hover:-translate-y-1 hover:bg-emerald-400 hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-glow transition-all hover:-translate-y-1 hover:bg-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/25 bg-white/5 px-4 py-2.5 text-sm font-semibold text-red-500 transition-all hover:-translate-y-1 hover:border-emerald-300/80 hover:bg-emerald-400/20 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/25 bg-white/5 px-4 py-2.5 text-sm font-semibold text-red-500 transition-all hover:-translate-y-1 hover:border-red-400/80 hover:bg-red-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-95;
 }
 
 .light-theme .btn-secondary {
@@ -51,11 +51,11 @@ body {
 }
 
 .input {
-  @apply w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-400/70 focus:ring-2 focus:ring-emerald-400/20;
+  @apply w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-red-500/70 focus:ring-2 focus:ring-red-500/20;
 }
 
 .light-theme .input {
-  @apply border-slate-200 bg-white text-slate-900 placeholder:text-slate-400;
+  @apply border-slate-200 bg-white text-slate-900 placeholder:text-red-500;
 }
 
 .slider {

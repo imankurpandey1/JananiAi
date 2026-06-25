@@ -15,12 +15,12 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
       <div className="flex min-h-screen">
         <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/10 bg-slate-950/70 p-5 backdrop-blur-xl lg:block">
           <div className="mb-8 flex items-center gap-3">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-400 text-slate-950 shadow-glow">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-red-500 text-slate-950 shadow-glow">
               <Gauge size={24} />
             </div>
             <div>
               <p className="text-lg font-black tracking-tight text-red-500">JananiAI</p>
-              <p className="text-xs text-emerald-200">Generative NLP Studio</p>
+              <p className="text-xs text-red-500">Generative NLP Studio</p>
             </div>
           </div>
           <nav className="space-y-2">
@@ -29,7 +29,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
                 key={label}
                 onClick={() => setPage(label)}
                 className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                  page === label ? "bg-emerald-400 text-slate-950 shadow-glow" : "text-red-500 hover:bg-red-500/10 hover:text-red-400"
+                  page === label ? "bg-red-500 text-slate-950 shadow-glow" : "text-red-500 hover:bg-red-500/10 hover:text-red-400"
                 }`}
               >
                 <Icon size={18} />
@@ -47,7 +47,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
               </div>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:hidden">
                 {navItems.map(([label]) => (
-                  <button key={label} onClick={() => setPage(label)} className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold ${page === label ? "bg-emerald-400 text-slate-950" : "glass"}`}>
+                  <button key={label} onClick={() => setPage(label)} className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold ${page === label ? "bg-red-500 text-slate-950" : "glass"}`}>
                     {label}
                   </button>
                 ))}
@@ -76,11 +76,11 @@ export function MetricCard({ label, value, sub, icon: Icon }) {
     <Card className="transition hover:-translate-y-1 hover:shadow-glow overflow-hidden">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-slate-400 truncate">{label}</p>
+          <p className="text-sm text-red-500 truncate">{label}</p>
           <p className="mt-2 text-3xl font-black break-words" style={{ wordBreak: 'break-word' }}>{value}</p>
-          {sub && <p className="mt-1 text-xs text-emerald-200 truncate">{sub}</p>}
+          {sub && <p className="mt-1 text-xs text-red-500 truncate">{sub}</p>}
         </div>
-        {Icon && <div className="shrink-0 rounded-2xl bg-emerald-400/15 p-3 text-emerald-300"><Icon size={22} /></div>}
+        {Icon && <div className="shrink-0 rounded-2xl bg-red-500/15 p-3 text-red-500"><Icon size={22} /></div>}
       </div>
     </Card>
   );
