@@ -96,22 +96,22 @@ function StoryResult({ result }) {
     <Card className="space-y-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-df-gold">Generated Output</p>
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-red-500">Generated Output</p>
           <h2 className="mt-2 text-2xl font-black">{result.title}</h2>
-          <p className="mt-2 text-sm text-df-textsec">{result.summary}</p>
+          <p className="mt-2 text-sm text-red-500">{result.summary}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <select disabled={translating} onChange={handleTranslate} value="" className="btn-secondary h-auto py-3 px-4 text-sm font-bold appearance-none outline-none focus:ring-2 focus:ring-df-accent/50">
-            <option value="" disabled className="bg-df-card text-df-text">Translate...</option>
-            {languages.map((l) => <option key={l} value={l} className="bg-df-card text-df-text">{l}</option>)}
+          <select disabled={translating} onChange={handleTranslate} value="" className="btn-secondary h-auto py-3 px-4 text-sm font-bold appearance-none outline-none focus:ring-2 focus:ring-red-500/50">
+            <option value="" disabled className="bg-slate-900 text-red-500">Translate...</option>
+            {languages.map((l) => <option key={l} value={l} className="bg-slate-900 text-red-500">{l}</option>)}
           </select>
-          <button onClick={toggleRecite} className={`btn-secondary h-auto py-3 px-4 text-sm font-bold ${isReciting ? "animate-pulse border-df-accent bg-df-accent/20 shadow-[0_0_20px_rgba(255, 90, 95,0.5)]" : ""}`}>
+          <button onClick={toggleRecite} className={`btn-secondary h-auto py-3 px-4 text-sm font-bold ${isReciting ? "animate-pulse border-red-500 bg-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.5)]" : ""}`}>
             {isReciting ? <VolumeX size={18} /> : <Volume2 size={18} />}
             {isReciting ? "Stop Reciting" : "Read Aloud"}
           </button>
-          <div className="rounded-2xl border border-df-accent/20 bg-df-accent/10 px-4 py-3 text-sm">
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm">
             <strong>{result.model_used}</strong>
-            <p className="text-df-textsec">{result.device} inference</p>
+            <p className="text-red-500">{result.device} inference</p>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@ function StoryResult({ result }) {
         <MetricCard label="Generation Time" value={`${result.generation_time}s`} icon={Gauge} />
         <MetricCard label="Memory" value={`${result.memory_usage || 0} MB`} icon={Activity} />
       </div>
-      <article className="max-h-[520px] overflow-auto whitespace-pre-wrap rounded-3xl border border-df-border bg-black/20 p-5 leading-8 text-df-text">
+      <article className="max-h-[520px] overflow-auto whitespace-pre-wrap rounded-3xl border border-white/10 bg-black/20 p-5 leading-8 text-slate-100">
         {story}
       </article>
     </Card>
@@ -165,13 +165,13 @@ function InsightsPage({ analytics }) {
           <h3 className="mb-4 text-lg font-black">Recent Stories</h3>
           <div className="grid gap-3">
             {(analytics?.recent_stories || []).slice(0, 4).map((story) => (
-              <div key={story.id} className="rounded-2xl border border-df-border bg-df-card p-4">
-                <div className="flex justify-between gap-3"><strong>{story.title}</strong><span className="text-df-textsec text-sm">{story.genre}</span></div>
-                <p className="mt-2 line-clamp-2 text-sm text-df-textsec">{story.generated_story}</p>
+              <div key={story.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="flex justify-between gap-3"><strong>{story.title}</strong><span className="text-red-500 text-sm">{story.genre}</span></div>
+                <p className="mt-2 line-clamp-2 text-sm text-red-500">{story.generated_story}</p>
               </div>
             ))}
             {(!analytics?.recent_stories || analytics.recent_stories.length === 0) && (
-              <p className="text-df-textsec text-sm italic">No stories generated yet.</p>
+              <p className="text-red-500 text-sm italic">No stories generated yet.</p>
             )}
           </div>
         </Card>
@@ -179,13 +179,13 @@ function InsightsPage({ analytics }) {
           <h3 className="mb-4 text-lg font-black">Top Rated Stories</h3>
           <div className="grid gap-3">
             {(analytics?.top_rated || []).slice(0, 4).map((story) => (
-              <div key={story.id} className="rounded-2xl border border-df-border bg-df-card p-4">
-                <div className="flex justify-between gap-3"><strong>{story.title}</strong><span className="text-df-gold">{story.rating} stars</span></div>
-                <p className="mt-2 line-clamp-2 text-sm text-df-textsec">{story.generated_story}</p>
+              <div key={story.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="flex justify-between gap-3"><strong>{story.title}</strong><span className="text-red-500">{story.rating} stars</span></div>
+                <p className="mt-2 line-clamp-2 text-sm text-red-500">{story.generated_story}</p>
               </div>
             ))}
             {(!analytics?.top_rated || analytics.top_rated.length === 0) && (
-              <p className="text-df-textsec text-sm italic">No stories rated yet.</p>
+              <p className="text-red-500 text-sm italic">No stories rated yet.</p>
             )}
           </div>
         </Card>
@@ -222,11 +222,11 @@ function InteractiveBuilder({ prompt, setPrompt, onGenerate }) {
     <Card className="flex flex-col gap-4 h-[400px]">
       <div className="flex-1 overflow-y-auto space-y-4 pr-2 flex flex-col">
         {messages.map((m, i) => (
-          <div key={i} className={`p-3 rounded-xl max-w-[85%] ${m.role === 'assistant' ? 'bg-df-accent/10 text-df-text self-start' : 'bg-df-card text-df-text self-end'}`}>
+          <div key={i} className={`p-3 rounded-xl max-w-[85%] ${m.role === 'assistant' ? 'bg-red-500/10 text-red-500 self-start' : 'bg-white/10 text-red-500 self-end'}`}>
             <p className="text-sm">{m.content}</p>
           </div>
         ))}
-        {loading && <div className="text-df-accent animate-pulse text-sm">Brainstorming...</div>}
+        {loading && <div className="text-red-500 animate-pulse text-sm">Brainstorming...</div>}
       </div>
       <div className="flex gap-2">
         <input className="input flex-1" placeholder="Type your idea..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} />
@@ -278,8 +278,8 @@ function GeneratorPage({ onSaved }) {
     <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
       <div className="space-y-6">
         <div className="flex justify-end gap-4 mb-2">
-          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'static' ? 'border-df-accent text-df-accent' : 'border-transparent text-df-textsec hover:text-df-text'}`} onClick={() => setMode("static")}>Quick Prompt</button>
-          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'brainstorm' ? 'border-df-accent text-df-accent' : 'border-transparent text-df-textsec hover:text-df-text'}`} onClick={() => setMode("brainstorm")}>Interactive Brainstorm</button>
+          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'static' ? 'border-red-500 text-red-500' : 'border-transparent text-red-500 hover:text-red-500'}`} onClick={() => setMode("static")}>Quick Prompt</button>
+          <button className={`text-sm font-bold pb-1 border-b-2 transition-all ${mode === 'brainstorm' ? 'border-red-500 text-red-500' : 'border-transparent text-red-500 hover:text-red-500'}`} onClick={() => setMode("brainstorm")}>Interactive Brainstorm</button>
         </div>
         {mode === "static" ? (
           <Card>
@@ -347,8 +347,8 @@ function CompletionPage({ onSaved }) {
         />
         {result && (
           <div className="grid gap-6 lg:grid-cols-2">
-            <Card><h3 className="mb-3 font-black">Original Text</h3><p className="whitespace-pre-wrap leading-7 text-df-textsec">{result.original_text}</p></Card>
-            <Card><h3 className="mb-3 font-black">Generated Continuation</h3><p className="whitespace-pre-wrap leading-7 text-df-textsec">{result.continuation}</p></Card>
+            <Card><h3 className="mb-3 font-black">Original Text</h3><p className="whitespace-pre-wrap leading-7 text-red-500">{result.original_text}</p></Card>
+            <Card><h3 className="mb-3 font-black">Generated Continuation</h3><p className="whitespace-pre-wrap leading-7 text-red-500">{result.continuation}</p></Card>
           </div>
         )}
         <StoryResult result={result} />
@@ -362,7 +362,7 @@ function StarRating({ value, onChange }) {
   return (
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
-        <button key={star} onClick={() => onChange(star)} className={star <= value ? "text-df-gold" : "text-df-textmuted"}>
+        <button key={star} onClick={() => onChange(star)} className={star <= value ? "text-red-500" : "text-slate-500"}>
           <Star size={18} fill="currentColor" />
         </button>
       ))}
@@ -409,9 +409,9 @@ function LibraryPage({ onSaved }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4 border-b border-df-border pb-2">
-        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'private' ? 'border-df-accent text-df-accent' : 'border-transparent text-df-textsec hover:text-df-text'}`} onClick={() => setTab("private")}>My Private Library</button>
-        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'public' ? 'border-df-accent text-df-accent' : 'border-transparent text-df-textsec hover:text-df-text'}`} onClick={() => setTab("public")}>Public Discover Feed</button>
+      <div className="flex gap-4 border-b border-white/10 pb-2">
+        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'private' ? 'border-red-500 text-red-500' : 'border-transparent text-red-500 hover:text-red-500'}`} onClick={() => setTab("private")}>My Private Library</button>
+        <button className={`text-lg font-bold pb-2 border-b-2 ${tab === 'public' ? 'border-red-500 text-red-500' : 'border-transparent text-red-500 hover:text-red-500'}`} onClick={() => setTab("public")}>Public Discover Feed</button>
       </div>
       <Card>
         <div className="grid gap-3 md:grid-cols-5">
@@ -427,10 +427,10 @@ function LibraryPage({ onSaved }) {
             <Card>
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-3xl">
-                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-df-accent">{story.genre} | {story.model_used} | {story.language} {story.visibility === 'public' && ` | By ${story.author_name}`}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-red-500">{story.genre} | {story.model_used} | {story.language} {story.visibility === 'public' && ` | By ${story.author_name}`}</p>
                   <h3 className="mt-2 text-xl font-black">{story.title}</h3>
-                  <p className="mt-2 line-clamp-3 text-sm leading-6 text-df-textsec">{story.generated_story}</p>
-                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-df-textsec">
+                  <p className="mt-2 line-clamp-3 text-sm leading-6 text-red-500">{story.generated_story}</p>
+                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-red-500">
                     <span>{story.word_count} words</span><span>{readingLabel(story.reading_time)}</span><span>{story.generation_time}s</span>
                   </div>
                 </div>
@@ -471,15 +471,15 @@ function SettingsPage({ theme, setTheme }) {
     <div className="grid gap-6 lg:grid-cols-2">
       <Card>
         <h3 className="text-xl font-black">Application Settings</h3>
-        <p className="mt-2 text-sm text-df-textsec">Control presentation and local development options.</p>
-        <div className="mt-6 flex items-center justify-between rounded-2xl border border-df-border bg-df-card p-4">
-          <div><p className="font-bold">Theme</p><p className="text-sm text-df-textsec">Toggle dark and light UI modes.</p></div>
+        <p className="mt-2 text-sm text-red-500">Control presentation and local development options.</p>
+        <div className="mt-6 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div><p className="font-bold">Theme</p><p className="text-sm text-red-500">Toggle dark and light UI modes.</p></div>
           <button className="btn-primary" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? "Light" : "Dark"}</button>
         </div>
       </Card>
       <Card>
         <h3 className="text-xl font-black">Model Notes</h3>
-        <p className="mt-3 leading-7 text-df-textsec">Qwen2.5 0.5B Instruct provides the strongest prompt adherence. GPT-2 is a smaller baseline, while DistilGPT-2 is faster and lighter. The first use of a model downloads its files into the backend model cache.</p>
+        <p className="mt-3 leading-7 text-red-500">Qwen2.5 0.5B Instruct provides the strongest prompt adherence. GPT-2 is a smaller baseline, while DistilGPT-2 is faster and lighter. The first use of a model downloads its files into the backend model cache.</p>
       </Card>
     </div>
   );

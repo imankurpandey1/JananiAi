@@ -14,10 +14,10 @@ export const defaultParams = {
 export function Select({ label, value, onChange, options }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-df-textsec">{label}</span>
+      <span className="mb-2 block text-sm font-semibold text-red-500">{label}</span>
       <select value={value} onChange={(event) => onChange(event.target.value)} className="input">
         {options.map((option) => (
-          <option key={option.value || option} value={option.value || option} className="bg-df-card text-df-text">{option.label || option}</option>
+          <option key={option.value || option} value={option.value || option} className="bg-slate-900 text-red-500">{option.label || option}</option>
         ))}
       </select>
     </label>
@@ -27,9 +27,9 @@ export function Select({ label, value, onChange, options }) {
 export function Slider({ label, value, min, max, step, onChange }) {
   return (
     <label className="block">
-      <span className="mb-2 flex justify-between text-sm font-semibold text-df-textsec">
+      <span className="mb-2 flex justify-between text-sm font-semibold text-red-500">
         {label}
-        <strong className="text-df-gold">{value}</strong>
+        <strong className="text-red-500">{value}</strong>
       </span>
       <input className="slider w-full" type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
     </label>

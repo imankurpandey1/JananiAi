@@ -14,9 +14,9 @@ body {
 
 .dark-theme {
   background:
-    radial-gradient(circle at 10% 10%, rgba(12, 31, 38, 0.8), transparent 45%),
-    radial-gradient(circle at 90% 90%, rgba(12, 31, 38, 0.5), transparent 40%),
-    linear-gradient(135deg, #081B16 0%, #081B16 100%);
+    radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.25), transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(246, 196, 83, 0.15), transparent 40%),
+    linear-gradient(135deg, #030a08 0%, #0a0f1d 55%, #05130d 100%);
   color: #f8fafc;
 }
 
@@ -39,11 +39,11 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-df-accent px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:-translate-y-1 hover:bg-df-accenthover hover:shadow-[0_0_30px_rgba(255,90,95,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-glow transition-all hover:-translate-y-1 hover:bg-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-df-border bg-df-card px-4 py-2.5 text-sm font-semibold text-df-text transition-all hover:-translate-y-1 hover:bg-df-cardhover hover:shadow-[0_0_20px_rgba(255,90,95,0.15)] active:scale-95;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/25 bg-white/5 px-4 py-2.5 text-sm font-semibold text-red-500 transition-all hover:-translate-y-1 hover:border-red-400/80 hover:bg-red-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-95;
 }
 
 .light-theme .btn-secondary {
@@ -51,29 +51,13 @@ body {
 }
 
 .input {
-  @apply w-full rounded-2xl border border-df-border bg-df-card px-4 py-3 text-sm text-df-text outline-none transition placeholder:text-df-textmuted focus:border-df-accent focus:ring-2 focus:ring-df-accent/20;
+  @apply w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-red-500/70 focus:ring-2 focus:ring-red-500/20;
 }
 
 .light-theme .input {
-  @apply border-slate-200 bg-white text-slate-900 placeholder:text-slate-400;
+  @apply border-slate-200 bg-white text-slate-900 placeholder:text-red-500;
 }
 
 .slider {
-  accent-color: #FF5A5F;
-}
-
-/* Scrollbar styling for Dark Forest theme */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: #10252A; 
-}
-::-webkit-scrollbar-thumb {
-  background: #243B42;
-  border-radius: 5px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #FF5A5F;
+  accent-color: #10b981;
 }

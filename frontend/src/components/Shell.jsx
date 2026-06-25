@@ -13,14 +13,14 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
   return (
     <div className={`min-h-screen ${theme === "dark" ? "dark-theme" : "light-theme"}`}>
       <div className="flex min-h-screen">
-        <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-df-border bg-df-section p-5 backdrop-blur-xl lg:block">
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/10 bg-slate-950/70 p-5 backdrop-blur-xl lg:block">
           <div className="mb-8 flex items-center gap-3">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-df-accent text-white shadow-glow">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-red-500 text-slate-950 shadow-glow">
               <Gauge size={24} />
             </div>
             <div>
-              <p className="text-lg font-black tracking-tight text-df-accent">JananiAI</p>
-              <p className="text-xs text-df-textsec">Generative NLP Studio</p>
+              <p className="text-lg font-black tracking-tight text-red-500">JananiAI</p>
+              <p className="text-xs text-red-500">Generative NLP Studio</p>
             </div>
           </div>
           <nav className="space-y-2">
@@ -29,7 +29,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
                 key={label}
                 onClick={() => setPage(label)}
                 className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                  page === label ? "bg-df-accent text-white shadow-glow" : "text-df-text hover:bg-df-cardhover"
+                  page === label ? "bg-red-500 text-slate-950 shadow-glow" : "text-red-500 hover:bg-red-500/10 hover:text-red-400"
                 }`}
               >
                 <Icon size={18} />
@@ -39,15 +39,15 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
           </nav>
         </aside>
         <main className="w-full lg:pl-72">
-          <header className="sticky top-0 z-20 border-b border-df-border bg-df-section/80 p-4 backdrop-blur-md lg:hidden">
+          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/45 px-4 py-4 backdrop-blur-xl sm:px-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gold">Intelligent Story Generation</p>
-                <h1 className="text-2xl font-black tracking-tight sm:text-3xl">{page}</h1>
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-red-500">Intelligent Story Generation</p>
+                <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-red-500">JananiAI</h1>
               </div>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:hidden">
                 {navItems.map(([label]) => (
-                  <button key={label} onClick={() => setPage(label)} className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold ${page === label ? "bg-df-accent text-white" : "glass text-df-text"}`}>
+                  <button key={label} onClick={() => setPage(label)} className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold ${page === label ? "bg-red-500 text-slate-950" : "glass"}`}>
                     {label}
                   </button>
                 ))}
@@ -68,7 +68,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
 }
 
 export function Card({ children, className = "" }) {
-  return <div className={`rounded-3xl border border-df-border bg-df-card p-6 shadow-xl ${className}`}>{children}</div>;
+  return <div className={`glass rounded-3xl p-5 ${className}`}>{children}</div>;
 }
 
 export function MetricCard({ label, value, sub, icon: Icon }) {
@@ -76,11 +76,11 @@ export function MetricCard({ label, value, sub, icon: Icon }) {
     <Card className="transition hover:-translate-y-1 hover:shadow-glow overflow-hidden">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-df-textsec truncate">{label}</p>
+          <p className="text-sm text-red-500 truncate">{label}</p>
           <p className="mt-2 text-3xl font-black break-words" style={{ wordBreak: 'break-word' }}>{value}</p>
-          {sub && <p className="mt-1 text-xs text-df-textmuted truncate">{sub}</p>}
+          {sub && <p className="mt-1 text-xs text-red-500 truncate">{sub}</p>}
         </div>
-        {Icon && <div className="shrink-0 rounded-2xl bg-df-accent/15 p-3 text-df-accent"><Icon size={22} /></div>}
+        {Icon && <div className="shrink-0 rounded-2xl bg-red-500/15 p-3 text-red-500"><Icon size={22} /></div>}
       </div>
     </Card>
   );
