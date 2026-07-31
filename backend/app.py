@@ -115,6 +115,8 @@ def create_app() -> Flask:
             app.config["SECRET_KEY"],
             algorithm="HS256"
         )
+        if isinstance(token, bytes):
+            token = token.decode("utf-8")
         return jsonify({"success": True, "data": {"token": token, "user": {"id": user_id, "email": email, "username": username, "name": name}}}), 201
 
     @app.post("/auth/login")
@@ -135,6 +137,8 @@ def create_app() -> Flask:
                 app.config["SECRET_KEY"],
                 algorithm="HS256"
             )
+            if isinstance(token, bytes):
+                token = token.decode("utf-8")
             return jsonify({"success": True, "data": {"token": token, "user": {"id": user["id"], "email": user["email"], "username": user["username"], "name": user["name"]}}}), 200
             
         return error_response("Invalid email or password.", 401)
@@ -193,6 +197,8 @@ def create_app() -> Flask:
                 app.config["SECRET_KEY"],
                 algorithm="HS256"
             )
+            if isinstance(jwt_token, bytes):
+                jwt_token = jwt_token.decode("utf-8")
             return jsonify({"success": True, "data": {"token": jwt_token, "user": {"id": user_id, "email": email, "username": username, "name": name}}}), 200
         except Exception as e:
             return error_response(f"Invalid Google token: {str(e)}", 401)
