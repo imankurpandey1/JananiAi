@@ -56,8 +56,15 @@ CREATE INDEX IF NOT EXISTS idx_stories_rating ON stories(rating);
 
 def ensure_database() -> None:
     db_path = Settings.DB_PATH
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as conn:
+    try:
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(db_path)
+    except Exception:
+        db_path = Settings.BASE_DIR / "backend" / "database" / "storycraft.db"
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(db_path)
+
+    with conn:
         conn.executescript(SCHEMA)
         # Try to add user_id column if it doesn't exist for backward compatibility
         try:
@@ -97,7 +104,12 @@ def ensure_database() -> None:
 
 def get_connection() -> sqlite3.Connection:
     ensure_database()
-    conn = sqlite3.connect(Settings.DB_PATH)
+    try:
+        conn = sqlite3.connect(Settings.DB_PATH)
+    except Exception:
+        fallback_path = Settings.BASE_DIR / "backend" / "database" / "storycraft.db"
+        fallback_path.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(fallback_path)
     conn.row_factory = sqlite3.Row
     return conn
 
