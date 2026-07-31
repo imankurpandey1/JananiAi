@@ -28,11 +28,12 @@ def create_app() -> Flask:
     CORS(app, resources={r"/*": {"origins": Settings.CORS_ORIGINS}})
     ensure_database()
 
+    @app.errorhandler(500)
     @app.errorhandler(Exception)
     def handle_exception(e):
         import traceback
         traceback.print_exc()
-        return jsonify({"success": False, "error": f"Internal Server Error: {str(e)}"}), 500
+        return jsonify({"success": False, "error": f"Internal Error: {str(e)}"}), 500
 
     def token_required(f):
         @wraps(f)
