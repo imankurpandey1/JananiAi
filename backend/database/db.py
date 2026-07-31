@@ -103,14 +103,17 @@ def ensure_database() -> None:
 
 
 def get_connection() -> sqlite3.Connection:
-    ensure_database()
     try:
-        conn = sqlite3.connect(Settings.DB_PATH)
+        conn = sqlite3.connect(Settings.DB_PATH, timeout=30.0)
     except Exception:
         fallback_path = Settings.BASE_DIR / "backend" / "database" / "storycraft.db"
         fallback_path.parent.mkdir(parents=True, exist_ok=True)
-        conn = sqlite3.connect(fallback_path)
+        conn = sqlite3.connect(fallback_path, timeout=30.0)
     conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+    except Exception:
+        pass
     return conn
 
 
