@@ -140,28 +140,10 @@ function InsightsPage({ analytics }) {
         <MetricCard label="Most Used Genre" value={empty ? "N/A" : analytics.most_used_genre} icon={Sparkles} />
         <MetricCard label="Generations" value={empty ? 0 : analytics.generation_count} icon={Wand2} />
       </div>
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Card>
-          <h3 className="mb-4 text-lg font-black">Generation Trends</h3>
-          <TrendChart data={analytics?.generation_trends || []} />
-        </Card>
-        <Card>
-          <h3 className="mb-4 text-lg font-black">Genre Distribution</h3>
-          <DonutChart data={analytics?.genre_distribution || []} />
-        </Card>
-        <Card>
-          <h3 className="mb-4 text-lg font-black">Model Usage</h3>
-          <DonutChart data={analytics?.model_usage || []} />
-        </Card>
-        <Card>
-          <h3 className="mb-4 text-lg font-black">Performance Analytics</h3>
-          <LineMetricChart data={analytics?.performance || []} />
-        </Card>
-        <Card className="xl:col-span-2">
-          <h3 className="mb-4 text-lg font-black">Rating Distribution</h3>
-          <BarMetricChart data={analytics?.rating_distribution || []} xKey="rating" bars={[{ key: "count", name: "Stories" }]} />
-        </Card>
-      </div>
+      <Card>
+        <h3 className="mb-4 text-lg font-black">Model Usage</h3>
+        <DonutChart data={analytics?.model_usage || []} />
+      </Card>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <h3 className="mb-4 text-lg font-black">Recent Stories</h3>
@@ -620,7 +602,7 @@ function AuthScreen() {
     <div className="min-h-screen dark-theme flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <img src="/logo.png" alt="JananiAI Logo" className="h-20 w-auto object-contain" />
+          <img src="/logo.png" alt="JananiAI Logo" className="h-36 sm:h-44 w-auto object-contain max-w-full" />
         </div>
         <Card className="space-y-6">
           <h2 className="text-2xl font-black text-center">

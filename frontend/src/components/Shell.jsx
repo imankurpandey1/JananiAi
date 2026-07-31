@@ -31,7 +31,7 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
           }`}
         >
           <div className="mb-8 flex items-center justify-between px-2">
-            <img src="/logo.png" alt="JananiAI Logo" className="h-16 w-auto object-contain" />
+            <img src="/logo.png" alt="JananiAI Logo" className="h-24 w-auto object-contain" />
             <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-1 text-red-500 hover:bg-white/10 rounded-lg">
               <X size={20} />
             </button>
@@ -56,25 +56,32 @@ export default function Shell({ page, setPage, children, theme, setTheme }) {
         </aside>
 
         <main className={`w-full transition-all duration-300 ${isSidebarOpen ? "lg:pl-72" : ""}`}>
-          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/45 px-4 py-4 backdrop-blur-xl sm:px-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
+          <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/45 px-4 py-3 backdrop-blur-xl sm:px-8">
+            <div className="relative flex items-center justify-between min-h-[5rem]">
+              <div className="flex items-center gap-4 z-10">
                 <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-red-500 hover:bg-white/10 rounded-lg">
                   <Menu size={24} />
                 </button>
-                <img src="/logo.png" alt="JananiAI Logo" className="h-16 sm:h-20 w-auto object-contain" />
               </div>
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:hidden">
-                {navItems.map(([label]) => (
-                  <button key={label} onClick={() => setPage(label)} className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold ${page === label ? "bg-red-500 text-slate-950" : "glass"}`}>
-                    {label}
-                  </button>
-                ))}
+              
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <img src="/logo.png" alt="JananiAI Logo" className="h-24 sm:h-32 md:h-36 w-auto object-contain max-w-[80%] pointer-events-auto" />
               </div>
-              <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="btn-secondary self-start md:self-auto">
-                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-                {theme === "dark" ? "Light Mode" : "Dark Mode"}
-              </button>
+
+              <div className="flex items-center gap-2 z-10">
+                <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="btn-secondary">
+                  {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                  <span className="hidden sm:inline">{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 overflow-x-auto pt-3 pb-1 lg:hidden justify-center">
+              {navItems.map(([label]) => (
+                <button key={label} onClick={() => setPage(label)} className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold ${page === label ? "bg-red-500 text-slate-950" : "glass"}`}>
+                  {label}
+                </button>
+              ))}
             </div>
           </header>
           <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mx-auto max-w-7xl p-4 sm:p-8">
