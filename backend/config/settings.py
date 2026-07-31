@@ -10,8 +10,15 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 def _get_default_db_path() -> Path:
     if os.environ.get("STORYCRAFT_DB_PATH"):
         return Path(os.environ["STORYCRAFT_DB_PATH"])
-    if Path("/data").exists() and Path("/data").is_dir():
-        return Path("/data/storycraft.db")
+    data_dir = Path("/data")
+    if data_dir.exists() and data_dir.is_dir():
+        try:
+            test_file = data_dir / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            return data_dir / "storycraft.db"
+        except Exception:
+            pass
     return BASE_DIR / "backend" / "database" / "storycraft.db"
 
 
