@@ -71,8 +71,8 @@ def create_app() -> Flask:
     @app.post("/auth/register")
     def register():
         payload = request.get_json(silent=True) or {}
-        email = payload.get("email", "").strip()
-        username = payload.get("username", "").strip()
+        email = payload.get("email", "").strip().lower()
+        username = payload.get("username", "").strip().lower()
         password = payload.get("password", "")
         name = payload.get("name", "").strip()
         
@@ -105,14 +105,14 @@ def create_app() -> Flask:
     @app.post("/auth/login")
     def login():
         payload = request.get_json(silent=True) or {}
-        identifier = payload.get("email", "").strip() # can be email or username
+        identifier = payload.get("email", "").strip().lower()
         password = payload.get("password", "")
         
         if not identifier or not password:
             return error_response("Email/Username and password are required.")
             
         with get_connection() as conn:
-            user = row_to_dict(conn.execute("SELECT id, email, username, name, password_hash FROM users WHERE email = ? OR username = ?", (identifier, identifier)).fetchone())
+            user = row_to_dict(conn.execute("SELECT id, email, username, name, password_hash FROM users WHERE LOWER(email) = ? OR LOWER(username) = ?", (identifier, identifier)).fetchone())
             
         if user and check_password_hash(user["password_hash"], password):
             token = jwt.encode(
@@ -149,14 +149,14 @@ def create_app() -> Flask:
                 except Exception:
                     import jwt as pyjwt
                     idinfo = pyjwt.decode(token, options={"verify_signature": False})
-            email = idinfo.get("email")
+            email = idinfo.get("email", "").strip().lower()
             name = idinfo.get("name", "Google User")
             
             if not email:
                 return error_response("Google token did not contain an email.", 400)
                 
             with get_connection() as conn:
-                user = row_to_dict(conn.execute("SELECT id, email, username, name, password_hash FROM users WHERE email = ?", (email,)).fetchone())
+                user = row_to_dict(conn.execute("SELECT id, email, username, name, password_hash FROM users WHERE LOWER(email) = ?", (email,)).fetchone())
                 
                 if not user:
                     # Create the user if they don't exist
@@ -185,12 +185,12 @@ def create_app() -> Flask:
     @app.post("/auth/forgot-password")
     def forgot_password():
         payload = request.get_json(silent=True) or {}
-        identifier = payload.get("email", "").strip()
+        identifier = payload.get("email", "").strip().lower()
         if not identifier:
             return error_response("Email or username is required.")
             
         with get_connection() as conn:
-            user = row_to_dict(conn.execute("SELECT id FROM users WHERE email = ? OR username = ?", (identifier, identifier)).fetchone())
+            user = row_to_dict(conn.execute("SELECT id FROM users WHERE LOWER(email) = ? OR LOWER(username) = ?", (identifier, identifier)).fetchone())
             if not user:
                 return error_response("No account found with that email/username.")
                 
@@ -208,7 +208,7 @@ def create_app() -> Flask:
     @app.post("/auth/reset-password")
     def reset_password():
         payload = request.get_json(silent=True) or {}
-        identifier = payload.get("email", "").strip()
+        identifier = payload.get("email", "").strip().lower()
         reset_token = payload.get("code", "").strip()
         new_password = payload.get("password", "")
         
@@ -216,13 +216,17 @@ def create_app() -> Flask:
             return error_response("All fields are required.")
             
         with get_connection() as conn:
-            user = row_to_dict(conn.execute("SELECT id, reset_token, reset_token_expiry FROM users WHERE email = ? OR username = ?", (identifier, identifier)).fetchone())
+            user = row_to_dict(conn.execute("SELECT id, reset_token, reset_token_expiry FROM users WHERE LOWER(email) = ? OR LOWER(username) = ?", (identifier, identifier)).fetchone())
             
             if not user or user["reset_token"] != reset_token:
                 return error_response("Invalid or missing reset code.")
                 
-            if datetime.fromisoformat(user["reset_token_expiry"]) < datetime.utcnow():
-                return error_response("Reset code has expired.")
+            if user["reset_token_expiry"]:
+                try:
+                    if datetime.fromisoformat(user["reset_token_expiry"]) < datetime.utcnow():
+                        return error_response("Reset code has expired.")
+                except Exception:
+                    pass
                 
             conn.execute("UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?", (generate_password_hash(new_password), user["id"]))
             conn.commit()

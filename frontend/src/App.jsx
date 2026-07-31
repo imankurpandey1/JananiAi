@@ -551,11 +551,10 @@ function AuthScreen() {
     try {
       let res;
       if (isReset) {
-        res = await api.resetPassword({ email, code: resetCode, password });
-        toast.success("Password reset successful. Please log in.");
-        setIsReset(false);
-        setIsForgot(false);
-        setIsLogin(true);
+        await api.resetPassword({ email, code: resetCode, password });
+        toast.success("Password reset successful! Logging you in...");
+        const loginRes = await api.login({ email, password });
+        login(loginRes.user, loginRes.token);
         return;
       } else if (isForgot) {
         res = await api.forgotPassword({ email });
