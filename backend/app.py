@@ -48,7 +48,7 @@ def create_app() -> Flask:
             try:
                 data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"], leeway=300)
                 with get_connection() as conn:
-                    current_user = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE id = ?", (data["user_id"],)).fetchone())
+                    current_user = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE id = ?", (int(data["user_id"]),)).fetchone())
                 if not current_user:
                     raise Exception("User not found")
             except Exception as e:
@@ -69,7 +69,7 @@ def create_app() -> Flask:
                 try:
                     data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"], leeway=300)
                     with get_connection() as conn:
-                        current_user = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE id = ?", (data["user_id"],)).fetchone())
+                        current_user = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE id = ?", (int(data["user_id"]),)).fetchone())
                 except Exception:
                     pass
             return f(current_user, *args, **kwargs)
