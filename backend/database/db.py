@@ -83,6 +83,17 @@ def ensure_database() -> None:
             pass
         conn.commit()
 
+        # One-time migration wipe to remove previous test logins from DBs as requested by user
+        flag_file = db_path.parent / ".db_wiped_v2"
+        if not flag_file.exists():
+            try:
+                conn.execute("DELETE FROM users")
+                conn.execute("DELETE FROM stories")
+                conn.commit()
+                flag_file.touch()
+            except Exception:
+                pass
+
 
 def get_connection() -> sqlite3.Connection:
     ensure_database()
