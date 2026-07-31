@@ -140,10 +140,6 @@ function InsightsPage({ analytics }) {
         <MetricCard label="Most Used Genre" value={empty ? "N/A" : analytics.most_used_genre} icon={Sparkles} />
         <MetricCard label="Generations" value={empty ? 0 : analytics.generation_count} icon={Wand2} />
       </div>
-      <Card>
-        <h3 className="mb-4 text-lg font-black">Model Usage</h3>
-        <DonutChart data={analytics?.model_usage || []} />
-      </Card>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <h3 className="mb-4 text-lg font-black">Recent Stories</h3>
