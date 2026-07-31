@@ -55,8 +55,9 @@ CREATE INDEX IF NOT EXISTS idx_stories_rating ON stories(rating);
 """
 
 def ensure_database() -> None:
-    Settings.DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(Settings.DB_PATH) as conn:
+    db_path = Settings.DB_PATH
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db_path) as conn:
         conn.executescript(SCHEMA)
         # Try to add user_id column if it doesn't exist for backward compatibility
         try:
@@ -67,12 +68,16 @@ def ensure_database() -> None:
         
         # Try to add new users columns for backward compatibility
         try:
-            conn.execute("ALTER TABLE users ADD COLUMN username TEXT UNIQUE")
+            conn.execute("ALTER TABLE users ADD COLUMN username TEXT")
+            conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)")
             conn.execute("UPDATE users SET username = 'user_' || id WHERE username IS NULL")
         except sqlite3.OperationalError:
             pass
         try:
             conn.execute("ALTER TABLE users ADD COLUMN reset_token TEXT")
+        except sqlite3.OperationalError:
+            pass
+        try:
             conn.execute("ALTER TABLE users ADD COLUMN reset_token_expiry TEXT")
         except sqlite3.OperationalError:
             pass

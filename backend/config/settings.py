@@ -7,12 +7,20 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 
+def _get_default_db_path() -> Path:
+    if os.environ.get("STORYCRAFT_DB_PATH"):
+        return Path(os.environ["STORYCRAFT_DB_PATH"])
+    if Path("/data").exists() and Path("/data").is_dir():
+        return Path("/data/storycraft.db")
+    return BASE_DIR / "backend" / "database" / "storycraft.db"
+
+
 class Settings:
     SECRET_KEY = os.environ.get("STORYCRAFT_SECRET_KEY", "storycraft-dev-secret")
     HOST = os.environ.get("STORYCRAFT_HOST", "127.0.0.1")
     PORT = int(os.environ.get("STORYCRAFT_PORT", "5000"))
     DEBUG = os.environ.get("STORYCRAFT_DEBUG", "1") == "1"
-    DB_PATH = Path(os.environ.get("STORYCRAFT_DB_PATH", BASE_DIR / "backend" / "database" / "storycraft.db"))
+    DB_PATH = _get_default_db_path()
     MODEL_CACHE_DIR = Path(os.environ.get("STORYCRAFT_MODEL_CACHE_DIR", BASE_DIR / "backend" / "models"))
     MAX_PROMPT_CHARS = int(os.environ.get("STORYCRAFT_MAX_PROMPT_CHARS", "5000"))
     FRONTEND_ORIGIN = os.environ.get("STORYCRAFT_FRONTEND_ORIGIN", "*")

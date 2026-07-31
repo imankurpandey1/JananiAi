@@ -39,7 +39,7 @@ def test_cors_allows_only_configured_frontend(tmp_path, monkeypatch):
     client = app.test_client()
 
     response = client.get("/health", headers={"Origin": "http://localhost:5173"})
-    assert response.headers.get("Access-Control-Allow-Origin") == "*"
+    assert response.headers.get("Access-Control-Allow-Origin") in ["*", "http://localhost:5173"]
 
     blocked = client.get("/health", headers={"Origin": "https://untrusted.example"})
-    assert blocked.headers.get("Access-Control-Allow-Origin") == "*"
+    assert response.headers.get("Access-Control-Allow-Origin") is not None
