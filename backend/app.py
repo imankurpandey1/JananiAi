@@ -39,7 +39,7 @@ def create_app() -> Flask:
             if not token:
                 return jsonify({"success": False, "error": "Token is missing"}), 401
             try:
-                data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+                data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"], leeway=300)
                 with get_connection() as conn:
                     current_user = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE id = ?", (data["user_id"],)).fetchone())
                 if not current_user:
@@ -60,7 +60,7 @@ def create_app() -> Flask:
                     token = parts[1]
             if token:
                 try:
-                    data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+                    data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"], leeway=300)
                     with get_connection() as conn:
                         current_user = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE id = ?", (data["user_id"],)).fetchone())
                 except Exception:
@@ -94,7 +94,7 @@ def create_app() -> Flask:
                 user_id = cursor.lastrowid
                 
             token = jwt.encode(
-                {"user_id": user_id, "exp": datetime.utcnow() + timedelta(days=7)},
+                {"user_id": user_id, "exp": datetime.now(timezone.utc) + timedelta(days=7)},
                 app.config["SECRET_KEY"],
                 algorithm="HS256"
             )
@@ -116,7 +116,7 @@ def create_app() -> Flask:
             
         if user and check_password_hash(user["password_hash"], password):
             token = jwt.encode(
-                {"user_id": user["id"], "exp": datetime.utcnow() + timedelta(days=7)},
+                {"user_id": user["id"], "exp": datetime.now(timezone.utc) + timedelta(days=7)},
                 app.config["SECRET_KEY"],
                 algorithm="HS256"
             )
@@ -161,7 +161,7 @@ def create_app() -> Flask:
                     username = user["username"]
                     
             jwt_token = jwt.encode(
-                {"user_id": user_id, "exp": datetime.utcnow() + timedelta(days=7)},
+                {"user_id": user_id, "exp": datetime.now(timezone.utc) + timedelta(days=7)},
                 app.config["SECRET_KEY"],
                 algorithm="HS256"
             )

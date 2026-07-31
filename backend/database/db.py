@@ -81,6 +81,13 @@ def ensure_database() -> None:
             conn.execute("ALTER TABLE users ADD COLUMN reset_token_expiry TEXT")
         except sqlite3.OperationalError:
             pass
+
+        # Wipe old previous test accounts to give a clean slate as requested by user
+        try:
+            conn.execute("DELETE FROM users")
+        except sqlite3.OperationalError:
+            pass
+
         conn.commit()
 
 
