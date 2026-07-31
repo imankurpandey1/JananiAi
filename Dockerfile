@@ -19,7 +19,7 @@ USER user
 ENV STORYCRAFT_HOST=0.0.0.0
 ENV STORYCRAFT_PORT=7860
 ENV PORT=7860
-ENV STORYCRAFT_DB_PATH=/tmp/storycraft.db
+ENV STORYCRAFT_DB_PATH=/home/user/storycraft.db
 
 # Command to run the application using gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:7860", "-w", "1", "--threads", "2", "--timeout", "120", "app:app"]

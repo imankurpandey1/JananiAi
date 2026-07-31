@@ -76,48 +76,51 @@ def create_app() -> Flask:
 
     @app.post("/auth/register")
     def register():
-        payload = request.get_json(silent=True) or {}
-        email = payload.get("email", "").strip().lower()
-        username = payload.get("username", "").strip().lower()
-        password = payload.get("password", "")
-        name = payload.get("name", "").strip()
-        
-        if not email or not password or not name:
-            return error_response("Email, password, and name are required.")
+        try:
+            payload = request.get_json(silent=True) or {}
+            email = payload.get("email", "").strip().lower()
+            username = payload.get("username", "").strip().lower()
+            password = payload.get("password", "")
+            name = payload.get("name", "").strip()
             
-        import secrets
-        password_hash = generate_password_hash(password)
-        with get_connection() as conn:
-            existing = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE LOWER(email) = ?", (email,)).fetchone())
-            if existing:
-                # If email already exists, update password and name so signup seamlessly logs them in
-                conn.execute("UPDATE users SET password_hash = ?, name = ? WHERE id = ?", (password_hash, name, existing["id"]))
-                conn.commit()
-                user_id = existing["id"]
-                username = existing["username"]
-            else:
-                if not username:
-                    username = email.split("@")[0] + "_" + secrets.token_hex(3)
+            if not email or not password or not name:
+                return error_response("Email, password, and name are required.")
                 
-                user_check = conn.execute("SELECT id FROM users WHERE LOWER(username) = ?", (username,)).fetchone()
-                if user_check:
-                    username = f"{username}_{secrets.token_hex(3)}"
+            import secrets
+            password_hash = generate_password_hash(password)
+            with get_connection() as conn:
+                existing = row_to_dict(conn.execute("SELECT id, email, username, name FROM users WHERE LOWER(email) = ?", (email,)).fetchone())
+                if existing:
+                    # If email already exists, update password and name so signup seamlessly logs them in
+                    conn.execute("UPDATE users SET password_hash = ?, name = ? WHERE id = ?", (password_hash, name, existing["id"]))
+                    conn.commit()
+                    user_id = existing["id"]
+                    username = existing["username"]
+                else:
+                    if not username:
+                        username = email.split("@")[0] + "_" + secrets.token_hex(3)
+                    
+                    user_check = conn.execute("SELECT id FROM users WHERE LOWER(username) = ?", (username,)).fetchone()
+                    if user_check:
+                        username = f"{username}_{secrets.token_hex(3)}"
 
-                cursor = conn.execute(
-                    "INSERT INTO users (email, username, password_hash, name, created_at) VALUES (?, ?, ?, ?, ?)",
-                    (email, username, password_hash, name, utc_now_iso())
-                )
-                conn.commit()
-                user_id = cursor.lastrowid
-                
-        token = jwt.encode(
-            {"user_id": user_id, "exp": datetime.now(timezone.utc) + timedelta(days=7)},
-            app.config["SECRET_KEY"],
-            algorithm="HS256"
-        )
-        if isinstance(token, bytes):
-            token = token.decode("utf-8")
-        return jsonify({"success": True, "data": {"token": token, "user": {"id": user_id, "email": email, "username": username, "name": name}}}), 201
+                    cursor = conn.execute(
+                        "INSERT INTO users (email, username, password_hash, name, created_at) VALUES (?, ?, ?, ?, ?)",
+                        (email, username, password_hash, name, utc_now_iso())
+                    )
+                    conn.commit()
+                    user_id = cursor.lastrowid
+                    
+            token = jwt.encode(
+                {"user_id": user_id, "exp": datetime.now(timezone.utc) + timedelta(days=7)},
+                app.config["SECRET_KEY"],
+                algorithm="HS256"
+            )
+            if isinstance(token, bytes):
+                token = token.decode("utf-8")
+            return jsonify({"success": True, "data": {"token": token, "user": {"id": user_id, "email": email, "username": username, "name": name}}}), 201
+        except Exception as e:
+            return error_response(f"Registration error: {str(e)}", 500)
 
     @app.post("/auth/login")
     def login():
