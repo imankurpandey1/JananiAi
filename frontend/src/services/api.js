@@ -16,6 +16,11 @@ async function request(path, options = {}, retries = 2) {
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || payload.success === false) {
+      if (response.status === 401) {
+        localStorage.removeItem("jananiai-token");
+        localStorage.removeItem("jananiai-user");
+        window.dispatchEvent(new Event("jananiai-logout"));
+      }
       if ((response.status >= 500 || response.status === 502 || response.status === 503) && retries > 0) {
         await new Promise(res => setTimeout(res, 2000));
         return request(path, options, retries - 1);
@@ -27,7 +32,12 @@ async function request(path, options = {}, retries = 2) {
     }
     return payload.data ?? payload;
   } catch (err) {
-    if (retries > 0 && err.message !== "Token is invalid") {
+    if (err.message && (err.message.includes("Token is invalid") || err.message.includes("Token is missing"))) {
+      localStorage.removeItem("jananiai-token");
+      localStorage.removeItem("jananiai-user");
+      window.dispatchEvent(new Event("jananiai-logout"));
+    }
+    if (retries > 0 && err.message !== "Token is invalid" && err.message !== "Token is missing") {
       await new Promise(res => setTimeout(res, 2000));
       return request(path, options, retries - 1);
     }

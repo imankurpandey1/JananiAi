@@ -29,6 +29,15 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
+  useEffect(() => {
+    const handleLogout = () => {
+      setToken(null);
+      setUser(null);
+    };
+    window.addEventListener("jananiai-logout", handleLogout);
+    return () => window.removeEventListener("jananiai-logout", handleLogout);
+  }, []);
+
   const login = (userData, authToken) => {
     setToken(authToken);
     setUser(userData);
