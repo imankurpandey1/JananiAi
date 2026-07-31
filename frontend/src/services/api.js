@@ -1,6 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:5000";
 
-async function request(path, options = {}) {
+async function request(path, options = {}, retries = 2) {
   const token = localStorage.getItem("jananiai-token");
   const headers = { 
     "Content-Type": "application/json", 
@@ -8,18 +8,31 @@ async function request(path, options = {}) {
     ...(options.headers || {}) 
   };
   
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers,
-    ...options
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok || payload.success === false) {
-    if (response.status === 401 && token) {
-      // Optional: Handle token expiry (e.g., clear token)
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      headers,
+      ...options
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload.success === false) {
+      if ((response.status >= 500 || response.status === 502 || response.status === 503) && retries > 0) {
+        await new Promise(res => setTimeout(res, 2000));
+        return request(path, options, retries - 1);
+      }
+      if (response.status >= 500 || response.status === 502 || response.status === 503) {
+        throw new Error("Server is waking up / initializing. Please wait a few seconds and try again.");
+      }
+      throw new Error(payload.error || `Request failed: ${response.status}`);
     }
-    throw new Error(payload.error || `Request failed: ${response.status}`);
+    return payload.data ?? payload;
+  } catch (err) {
+    if (retries > 0 && err.message !== "Token is invalid") {
+      await new Promise(res => setTimeout(res, 2000));
+      return request(path, options, retries - 1);
+    }
+    throw err;
   }
-  return payload.data ?? payload;
 }
 
 export const api = {
