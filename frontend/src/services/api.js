@@ -1,6 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:5000";
 
-async function request(path, options = {}, retries = 2) {
+async function request(path, options = {}, retries = 5) {
   const token = localStorage.getItem("jananiai-token");
   const headers = { 
     "Content-Type": "application/json", 
@@ -21,11 +21,11 @@ async function request(path, options = {}, retries = 2) {
         localStorage.removeItem("jananiai-user");
         window.dispatchEvent(new Event("jananiai-logout"));
       }
-      if ((response.status >= 500 || response.status === 502 || response.status === 503) && retries > 0) {
-        await new Promise(res => setTimeout(res, 2000));
+      if ((response.status >= 500 || response.status === 502 || response.status === 503 || response.status === 504) && retries > 0) {
+        await new Promise(res => setTimeout(res, 3000));
         return request(path, options, retries - 1);
       }
-      if (response.status >= 500 || response.status === 502 || response.status === 503) {
+      if (response.status >= 500 || response.status === 502 || response.status === 503 || response.status === 504) {
         throw new Error("Server is waking up / initializing. Please wait a few seconds and try again.");
       }
       throw new Error(payload.error || `Request failed: ${response.status}`);
@@ -37,8 +37,8 @@ async function request(path, options = {}, retries = 2) {
       localStorage.removeItem("jananiai-user");
       window.dispatchEvent(new Event("jananiai-logout"));
     }
-    if (retries > 0 && err.message !== "Token is invalid" && err.message !== "Token is missing") {
-      await new Promise(res => setTimeout(res, 2000));
+    if (retries > 0 && !err.message?.includes("Token is invalid") && !err.message?.includes("Token is missing") && err.message !== "Server is waking up / initializing. Please wait a few seconds and try again.") {
+      await new Promise(res => setTimeout(res, 3000));
       return request(path, options, retries - 1);
     }
     throw err;
