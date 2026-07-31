@@ -39,11 +39,15 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (userData, authToken) => {
+    if (authToken) localStorage.setItem("jananiai-token", authToken);
+    if (userData) localStorage.setItem("jananiai-user", JSON.stringify(userData));
     setToken(authToken);
     setUser(userData);
   };
 
   const logout = () => {
+    localStorage.removeItem("jananiai-token");
+    localStorage.removeItem("jananiai-user");
     setToken(null);
     setUser(null);
   };
