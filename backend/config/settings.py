@@ -23,7 +23,7 @@ def _get_default_db_path() -> Path:
 
 
 class Settings:
-    SECRET_KEY = os.environ.get("STORYCRAFT_SECRET_KEY", "storycraft-dev-secret")
+    SECRET_KEY = os.environ.get("STORYCRAFT_SECRET_KEY", "storycraft-dev-secret-key-32bytes-long-super-secure!!")
     HOST = os.environ.get("STORYCRAFT_HOST", "127.0.0.1")
     PORT = int(os.environ.get("STORYCRAFT_PORT", "5000"))
     DEBUG = os.environ.get("STORYCRAFT_DEBUG", "1") == "1"
