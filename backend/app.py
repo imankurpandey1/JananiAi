@@ -13,7 +13,7 @@ import sqlite3
 import jwt
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
@@ -27,6 +27,12 @@ def create_app() -> Flask:
     app.config.from_object(Settings)
     CORS(app, resources={r"/*": {"origins": Settings.CORS_ORIGINS}})
     ensure_database()
+
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": f"Internal Server Error: {str(e)}"}), 500
 
     def token_required(f):
         @wraps(f)
